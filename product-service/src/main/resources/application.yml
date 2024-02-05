@@ -1,0 +1,18 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /rest/v1/api/product-service
+spring:
+  datasource:
+    url: jdbc:h2:mem:product-service;MODE=PostgreSQL
+    driver-class-name: org.h2.Driver
+    username: admin
+    password: admin
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+    show-sql: true
+  h2:
+    console:
+      enabled: true
