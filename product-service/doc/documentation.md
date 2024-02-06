@@ -30,33 +30,29 @@ JSON:
     {
         "id":1,
         "name":"test_name1",
-        "price":0.005
+        "price":0.005,
+        "manufacturer":"test_mfr1",
     },
     {
         "id":2,
         "name":"test_name2",
-        "price":200.0256
+        "price":200.0256,
+        "manufacturer":"test_mfr2"
     },
 ]
 ```
-### Получить продукт по id
+### Получить продукт по name
 - Request:
 ```
-GET: http://<host>:<port>/<context>/products/{id}
+GET: http://<host>:<port>/<context>/products/{name}   
+name = "test_name"
 ```
 - Response:
 ```
 JSON:
-[
-    {
-        "id":1,
-        "name":"test_name1",
-        "price":0.005
-    },
-    {
-        "id":2,
-        "name":"test_name2",
-        "price":200.0256
-    },
-]
+{
+    "id":1,
+    "name":"test_name",
+    "price":0.005
+}
 ```

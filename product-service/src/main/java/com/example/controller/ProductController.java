@@ -25,9 +25,9 @@ public class ProductController {
         return productCrudService.findAll();
     }
 
-    @GetMapping("/{id}")
-    public Product findById(@PathVariable long id) {
-        return productCrudService.findById(id);
+    @GetMapping("/{name}")
+    public Product findByName(@PathVariable String name) {
+        return productCrudService.findByName(name);
     }
 
     @PostMapping("/create")

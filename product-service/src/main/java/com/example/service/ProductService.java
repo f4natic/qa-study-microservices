@@ -26,9 +26,9 @@ public class ProductService implements CrudService<Product> {
     }
 
     @Override
-    public Product findById(long id) {
-        if(id == id) {
-            throw new ProductException(String.format("Product with id: %d - not found!", id));
+    public Product findByName(String name) {
+        if(name == name) {
+            throw new ProductException(String.format("Product with name: %s - not found!", name));
         }
         return null;
     }
