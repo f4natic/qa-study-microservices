@@ -7,6 +7,6 @@ public interface CrudService<T> {
     Collection<T> findAll();
     T findByName(String name);
     T create(T t);
-    T update(T t);
-    boolean delete(long id);
+    T update(String name, T t);
+    void delete(String name);
 }

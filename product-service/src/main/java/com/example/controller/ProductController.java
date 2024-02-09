@@ -9,7 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
+@Tag(name = "Product Tutorial", description = "Product API for QA")
 @RestController
 @RequestMapping("products")
 public class ProductController {
@@ -33,6 +35,16 @@ public class ProductController {
     @PostMapping("/create")
     public Product create(@RequestBody Product product) {
         return productCrudService.create(product);
+    }
+
+    @PutMapping("/{name}")
+    public Product update(@PathVariable String name, @RequestBody Product product) {
+        return productCrudService.update(name, product);
+    }
+
+    @DeleteMapping("/{name}")
+    public void delete(@PathVariable String name) {
+        productCrudService.delete(name);
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)

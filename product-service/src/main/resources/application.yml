@@ -2,6 +2,8 @@ server:
   port: 8080
   servlet:
     context-path: /rest/v1/api/product-service
+    encoding:
+      charset: UTF-8
 spring:
   datasource:
     url: jdbc:h2:mem:product-service;MODE=PostgreSQL
