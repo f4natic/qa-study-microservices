@@ -2,6 +2,7 @@ package com.example.controller;
 
 import com.example.model.Product;
 import com.example.service.CrudService;
+import com.example.service.ProductException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
@@ -17,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 import static com.example.constant.Constant.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -92,5 +94,19 @@ public class ProductControllerTest {
         mockMvc.perform(delete(String.format("/products/%s", NAME))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()).andReturn().getResponse();
+    }
+
+    @Test
+    public void shouldReturnExceptionWhenFindByName() throws Exception {
+        String errorMessage = String.format("Product with name: %s - not found!", NAME);
+        ProductException productException = new ProductException(errorMessage);
+        when(service.findByName(NAME)).thenThrow(productException);
+
+        MockHttpServletResponse response = mockMvc.perform(get(String.format("/products/%s", NAME))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest()).andReturn().getResponse();
+        ProductException exception = objectMapper.readValue(response.getContentAsString(), ProductException.class);
+
+        assertEquals(errorMessage,exception.getMessage());
     }
 }

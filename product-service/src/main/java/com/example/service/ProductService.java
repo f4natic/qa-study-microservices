@@ -16,8 +16,8 @@ public class ProductService implements CrudService<Product> {
     private static final Logger logger = LogManager.getLogger(ProductService.class);
     private ProductRepository productRepository;
 
-    private Pattern namePattern = Pattern.compile("[\\p{L}\\p{M}\\p{N}\\s-#]+");
-    private Pattern manufacturerPattern = Pattern.compile("[\\p{L}\\p{M}\\s-#*]+");
+    private Pattern namePattern = Pattern.compile("[\\p{L}\\p{M}\\p{N}\\s-#&]+");
+    private Pattern manufacturerPattern = Pattern.compile("[\\p{L}\\p{M}\\s-^*]+");
 
     @Autowired
     public ProductService(ProductRepository productRepository) {
@@ -45,15 +45,15 @@ public class ProductService implements CrudService<Product> {
         if(product.getName() == null || product.getPrice() == null || product.getManufacturer() == null) {
             throw new ProductException(String.format("Required fields must be filled in. %s", product.getName()));
         }
-        if(isRequariedName(product.getName())) {
-            throw new ProductException("Field name must contain Latin, Cyrillic, Arabic characters and hyphen.");
-        }
-        if(isRequariedManufacturer(product.getManufacturer())) {
-            throw new ProductException("Field manufacturer must contain Latin, Cyrillic characters and hyphen.");
-        }
         Optional<Product> productOptional = productRepository.findByName(product.getName());
         if(productOptional.isPresent()) {
             throw new ProductException(String.format("Product with name %s already exists", product.getName()));
+        }
+        if(!isRequariedName(product.getName())) {
+            throw new ProductException("Field name must contain Latin, Cyrillic, Arabic characters and hyphen.");
+        }
+        if(!isRequariedManufacturer(product.getManufacturer())) {
+            throw new ProductException("Field manufacturer must contain Latin, Cyrillic characters and hyphen.");
         }
         return productRepository.save(product);
     }
@@ -64,10 +64,13 @@ public class ProductService implements CrudService<Product> {
         if(productOptional.isEmpty()) {
             throw new ProductException(String.format("Product with name %s not found", product.getName()));
         }
-        if(isRequariedName(product.getName())) {
+        if(product.getName() == null || product.getPrice() == null || product.getManufacturer() == null) {
+            throw new ProductException(String.format("Required fields must be filled in. %s", product.getName()));
+        }
+        if(!isRequariedName(product.getName())) {
             throw new ProductException("Field name must contain Latin, Cyrillic, Arabic characters and hyphen.");
         }
-        if(isRequariedManufacturer(product.getManufacturer())) {
+        if(!isRequariedManufacturer(product.getManufacturer())) {
             throw new ProductException("Field manufacturer must contain Latin, Cyrillic characters and hyphen.");
         }
         Product exist = productOptional.get();
@@ -87,16 +90,16 @@ public class ProductService implements CrudService<Product> {
     }
 
     private boolean isRequariedName(String name) {
-        if (!namePattern.matcher(name).matches()) {
-            return false;
+        if (namePattern.matcher(name).matches()) {
+            return true;
         }
-        return true;
+        return false;
     }
 
     private boolean isRequariedManufacturer(String manufacturer) {
-        if (!manufacturerPattern.matcher(manufacturer).matches()) {
-            return false;
+        if (manufacturerPattern.matcher(manufacturer).matches()) {
+            return true;
         }
-        return true;
+        return false;
     }
 }
