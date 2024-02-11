@@ -1,2 +1,4 @@
-.idea
-product-service/target
+/.idea
+/product-service/target
+/web/node_modules
+/web/package-lock.json
