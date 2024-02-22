@@ -1,6 +1,7 @@
 export interface Product {
-    id: number;
     name: string;
     price: number;
     manufacturer: string;
 }
+
+export const mockProduct: Product = { name: '', price: 0.0, manufacturer: '' };
