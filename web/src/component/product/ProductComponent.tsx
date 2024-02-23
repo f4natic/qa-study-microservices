@@ -1,41 +1,12 @@
 import React, {useEffect, useState} from "react";
 import {Service} from "../../service/Service";
 import {Product} from "../../model/Product";
-import styled from "styled-components";
 import {mockException} from "../../model/Exception";
 import ExceptionComponent from "../exception/ExceptionComponent";
+import {Table, TableD, TableH} from "../../style/Table";
+import {PRODUCT_SERVICE_URL} from "../../service/ServiceUrl";
 
-const Table = styled.table`
-    width: 100%;
-    border-collapse: collapse;
-`;
-
-const TableH = styled.th`
-    padding: 8px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-    background-color: #f2f2f2;
-`;
-const TableD = styled.td`
-    padding: 8px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-`;
-
-const testProducts: Product[] = [
-    {
-        name: 'Product 1',
-        price: 9.99,
-        manufacturer: 'Manufacturer 1',
-    },
-    {
-        name: 'Product 2',
-        price: 19.99,
-        manufacturer: 'Manufacturer 2',
-    },
-];
-
-const productService: Service<Product> = new Service(testProducts);
+const productService: Service<Product> = new Service(PRODUCT_SERVICE_URL);
 
 const ProductComponent: React.FC = () => {
     const[products, setProducts] = useState<Product[]>([]);
@@ -45,9 +16,13 @@ const ProductComponent: React.FC = () => {
 
     useEffect(() => {
         (async () => {
-            const fetchedProducts = await productService.findAll(true);
+            const fetchedProducts = await productService.findAll(false);
             if('message' in fetchedProducts) {
-                console.log("Error:", fetchedProducts.message);
+               setExceptionProps((prev) => ({
+                   ...prev,
+                   isOpen: true,
+                   exception: fetchedProducts
+               }));
             }else {
                 setProducts(fetchedProducts);
             }
@@ -71,6 +46,16 @@ const ProductComponent: React.FC = () => {
         }
         setSelectAll(checked);
     };
+
+    const closeException = () => {
+        setExceptionProps((prev) => (
+            {
+                ...prev,
+                isOpen: false,
+                exception: mockException,
+            }
+        ));
+    }
 
     return(
         <div>
@@ -121,8 +106,7 @@ const ProductComponent: React.FC = () => {
                 ))}
                 </tbody>
             </Table>
-
-            <ExceptionComponent isOpen={exceptionProps.isOpen} exception={exceptionProps.exception} onClose={()=>{}} />
+            <ExceptionComponent isOpen={exceptionProps.isOpen} exception={exceptionProps.exception} onClose={()=>{closeException()}} />
         </div>
     );
 }

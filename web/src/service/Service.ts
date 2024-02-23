@@ -1,17 +1,22 @@
 import {Exception} from "../model/Exception";
+import axios, {AxiosResponse} from "axios";
 
 export class Service<T> {
 
-    private arr: T[];
+    private url: string;
 
-    constructor(arr:T[] = []) {
-        this.arr = arr;
+    constructor(url: string) {
+        this.url = url;
     }
 
     async findAll(check: boolean): Promise<T[] | Exception> {
-        if(check) {
-            return Promise.resolve({message:'Something went wrong...'});
+        console.log(this.url);
+        try {
+            const response: AxiosResponse<T[]> = await axios.get(this.url);
+            console.log(response.data);
+            return response.data;
+        } catch (error: any) {
+            return {message: `Couldn't connect to server`};
         }
-        return Promise.resolve(this.arr);
     }
 }

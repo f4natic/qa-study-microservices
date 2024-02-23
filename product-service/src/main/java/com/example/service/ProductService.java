@@ -77,6 +77,7 @@ public class ProductService implements CrudService<Product> {
         if(!exist.getName().equals(product.getName())) exist.setName(product.getName());
         if(!exist.getPrice().equals(product.getPrice())) exist.setPrice(product.getPrice());
         if(!exist.getManufacturer().equals(product.getManufacturer())) exist.setManufacturer(product.getManufacturer());
+        productRepository.delete(exist);
         return productRepository.save(product);
     }
 
@@ -86,7 +87,7 @@ public class ProductService implements CrudService<Product> {
         if(productOptional.isEmpty()) {
             throw new ProductException(String.format("Product with name %s not found", name));
         }
-        productRepository.deleteByName(name);
+        productRepository.delete(productOptional.get());
     }
 
     private boolean isRequariedName(String name) {
