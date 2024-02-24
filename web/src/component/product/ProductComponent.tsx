@@ -5,9 +5,11 @@ import {mockException} from "../../model/Exception";
 import ExceptionComponent from "../exception/ExceptionComponent";
 import {Table, TableD, TableH} from "../../style/Table";
 import {PRODUCT_SERVICE_URL} from "../../service/ServiceUrl";
-import {StyledButton} from "../../style/Button";
+import {StyledButton} from "../../style/StyledButton";
 import {useLocation, useNavigate} from "react-router-dom";
 import {ProductControlProps, WindowType} from "./ProductControlComponent";
+import {StyledSelect} from "../../style/StyledSelect";
+import Pagination from "../pagination/Pagination";
 
 const productService: Service<Product> = new Service(PRODUCT_SERVICE_URL);
 
@@ -23,9 +25,16 @@ const ProductComponent: React.FC<{componentProps: ProductComponentProps}> = ({co
     const navigate = useNavigate();
     const location = useLocation();
 
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(0);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
+    const [totalItems, setTotalItems] = useState(0);
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const pageNumbers = Array.from({ length: totalPages }, (_, index) => index + 1);
+
     useEffect(() => {
         (async () => {
-            const fetchedProducts = await productService.findAll(false);
+            const fetchedProducts = await productService.findAll(currentPage, itemsPerPage);
             if('message' in fetchedProducts) {
                setExceptionProps((prev) => ({
                    ...prev,
@@ -33,11 +42,13 @@ const ProductComponent: React.FC<{componentProps: ProductComponentProps}> = ({co
                    exception: fetchedProducts
                }));
             }else {
-                setProducts(fetchedProducts);
+                setProducts(fetchedProducts.content);
+                setTotalItems(fetchedProducts.totalElements);
             }
         })();
-    }, []);
+    }, [currentPage, itemsPerPage]);
 
+    console.log(totalItems);
     const handleCheckboxChange = (name: string, checked: boolean) => {
         if (checked) {
             setSelectedProducts((prevState) => ([...prevState, name]));
@@ -70,6 +81,22 @@ const ProductComponent: React.FC<{componentProps: ProductComponentProps}> = ({co
         navigate(`${location.pathname}/create`)
         componentProps.create({type: WindowType.CREATE, product: mockProduct, service: productService});
     }
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page - 1);
+    };
+
+    const handleItemsPerPageChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setItemsPerPage(Number(event.target.value));
+        setCurrentPage(0);
+    };
+    const goToPreviousPage = () => {
+        setCurrentPage((prevPage) => prevPage - 1);
+    };
+
+    const goToNextPage = () => {
+        setCurrentPage((prevPage) => prevPage + 1);
+    };
 
     return(
         <div>
@@ -127,7 +154,21 @@ const ProductComponent: React.FC<{componentProps: ProductComponentProps}> = ({co
                 ))}
                 </tbody>
             </Table>
-            <ExceptionComponent isOpen={exceptionProps.isOpen} exception={exceptionProps.exception} onClose={()=>{closeException()}} />
+            <Pagination paginationProps={
+                {
+                    currentPage:currentPage,
+                    itemsPerPage: itemsPerPage,
+                    pageNumbers: pageNumbers,
+                    totalPages: totalPages,
+                    handlePageChange: handlePageChange,
+                    handleItemsPerPageChange: handleItemsPerPageChange,
+                    goToPreviousPage:goToPreviousPage,
+                    goToNextPage: goToNextPage,
+                }}
+            />
+            <ExceptionComponent isOpen={exceptionProps.isOpen} exception={exceptionProps.exception} onClose={() => {
+                closeException()
+            }}/>
         </div>
     );
 }

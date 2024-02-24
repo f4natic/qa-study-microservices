@@ -1,6 +1,6 @@
 import React, {ChangeEvent, useState} from "react";
 import {useNavigate} from "react-router-dom";
-import {StyledButton} from "../../style/Button";
+import {StyledButton} from "../../style/StyledButton";
 import {Product} from "../../model/Product";
 import {Service} from "../../service/Service";
 import ExceptionComponent from "../exception/ExceptionComponent";
