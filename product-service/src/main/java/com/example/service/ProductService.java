@@ -16,8 +16,8 @@ public class ProductService implements CrudService<Product> {
     private static final Logger logger = LogManager.getLogger(ProductService.class);
     private ProductRepository productRepository;
 
-    private Pattern namePattern = Pattern.compile("[\\p{L}\\p{M}\\p{N}\\s-#&]+");
-    private Pattern manufacturerPattern = Pattern.compile("[\\p{L}\\p{M}\\s-^*]+");
+    private Pattern namePattern = Pattern.compile("[\\p{L}\\p{N}\\s-#&]+");
+    private Pattern manufacturerPattern = Pattern.compile("[\\p{L}\\s-^*]+");
 
     @Autowired
     public ProductService(ProductRepository productRepository) {

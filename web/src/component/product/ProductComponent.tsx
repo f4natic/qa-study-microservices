@@ -5,6 +5,8 @@ import {mockException} from "../../model/Exception";
 import ExceptionComponent from "../exception/ExceptionComponent";
 import {Table, TableD, TableH} from "../../style/Table";
 import {PRODUCT_SERVICE_URL} from "../../service/ServiceUrl";
+import {StyledButton} from "../../style/Button";
+import {useNavigate, useLocation} from "react-router-dom";
 
 const productService: Service<Product> = new Service(PRODUCT_SERVICE_URL);
 
@@ -13,6 +15,8 @@ const ProductComponent: React.FC = () => {
     const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
     const [selectAll, setSelectAll] = useState(false);
     const [exceptionProps, setExceptionProps] = useState({isOpen: false, exception: mockException});
+    const navigate = useNavigate();
+    const location = useLocation();
 
     useEffect(() => {
         (async () => {
@@ -66,6 +70,14 @@ const ProductComponent: React.FC = () => {
             }>
                 <h1>Product List</h1>
             </div>
+            <div style={{
+                display: "flex",
+                alignItems: "center",
+                marginBottom: "10px"
+            }}>
+                <StyledButton onClick={() => {navigate(`${location.pathname}/create`)}}>Add</StyledButton>
+                <StyledButton>Remove selected</StyledButton>
+            </div>
             <Table>
             <thead>
                 <tr>
@@ -79,9 +91,7 @@ const ProductComponent: React.FC = () => {
                     <TableH>Name</TableH>
                     <TableH>Price</TableH>
                     <TableH>Manufacturer</TableH>
-                    <TableH>
-                        <button>Remove All Selected</button>
-                    </TableH>
+                    <TableH>Action</TableH>
                 </tr>
                 </thead>
                 <tbody>
@@ -100,7 +110,8 @@ const ProductComponent: React.FC = () => {
                         <TableD>{product.price}</TableD>
                         <TableD>{product.manufacturer}</TableD>
                         <TableD>
-                            <button>Remove</button>
+                                <StyledButton>Edit</StyledButton>
+                                <StyledButton>Remove</StyledButton>
                         </TableD>
                     </tr>
                 ))}

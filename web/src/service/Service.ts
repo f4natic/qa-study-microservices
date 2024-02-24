@@ -10,13 +10,11 @@ export class Service<T> {
     }
 
     async findAll(check: boolean): Promise<T[] | Exception> {
-        console.log(this.url);
         try {
             const response: AxiosResponse<T[]> = await axios.get(this.url);
-            console.log(response.data);
             return response.data;
         } catch (error: any) {
-            return {message: `Couldn't connect to server`};
+            return {message: `Couldn't connect to server. Try again...`};
         }
     }
 }

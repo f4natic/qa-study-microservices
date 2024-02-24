@@ -9,7 +9,6 @@ interface  ExceptionProps {
 }
 
 const ExceptionComponent: React.FC<ExceptionProps> = (props) => {
-
     return(
         <div>
             {props.isOpen && (

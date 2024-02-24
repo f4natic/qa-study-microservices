@@ -9,7 +9,7 @@ export const TableH = styled.th`
     padding: 8px;
     text-align: left;
     border-bottom: 1px solid #ddd;
-    background-color: #f2f2f2;
+    background-color: lightgray;
 `;
 
 export const TableD = styled.td`
