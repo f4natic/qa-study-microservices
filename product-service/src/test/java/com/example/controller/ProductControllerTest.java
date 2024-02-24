@@ -8,9 +8,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.MockMvc;
@@ -19,16 +26,23 @@ import java.util.List;
 
 import static com.example.constant.Constant.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest
+@WebMvcTest(ProductController.class)
 public class ProductControllerTest {
 
     private final String newName = "New Test name";
     private final Double newPrice = 9876.1234;
     private final String newManufacturer = "New Test Manufacturer Name";
+
+    private int pageNum = 0;
+    private int pageSize = 5;
+
     private Product product;
     @Autowired private MockMvc mockMvc;
     @Autowired private ObjectMapper objectMapper;
@@ -46,18 +60,27 @@ public class ProductControllerTest {
 
     @Test
     public void shouldReturnProductList() throws Exception {
-        when(service.findAll()).thenReturn(List.of(product));
-        MockHttpServletResponse response = mockMvc.perform(get("/products")
+        List<Product> products = List.of(product);
+
+        Page<Product> page = new PageImpl<>(products, PageRequest.of(pageNum, pageSize), products.size());
+        when(service.findAll(any(Pageable.class))).thenReturn(page);
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/products")
+                        .queryParam("page", String.valueOf(pageNum))
+                        .queryParam("pageSize", String.valueOf(pageSize))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk()).andReturn().getResponse();
-        List<Product> products = objectMapper.readValue(response.getContentAsString(), new TypeReference<List<Product>>() {});
-        Assertions.assertEquals(products.get(0), product);
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content").isArray())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content.length()").value(products.size()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].name").value(product.getName()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].price").value(product.getPrice()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.content[0].manufacturer").value(product.getManufacturer()));
     }
 
     @Test
     public void shouldReturnProductByName() throws Exception {
         when(service.findByName(NAME)).thenReturn(product);
-        MockHttpServletResponse response = mockMvc.perform(get(String.format("/products/%s", NAME))
+        MockHttpServletResponse response = mockMvc.perform(MockMvcRequestBuilders.get(String.format("/products/%s", NAME))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()).andReturn().getResponse();
         Product returnedProduct = objectMapper.readValue(response.getContentAsString(), Product.class);
@@ -67,7 +90,7 @@ public class ProductControllerTest {
     @Test
     public void shouldCreateProduct() throws Exception {
         when(service.create(product)).thenReturn(product);
-        MockHttpServletResponse response = mockMvc.perform(post("/products/create")
+        MockHttpServletResponse response = mockMvc.perform(MockMvcRequestBuilders.post("/products/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(product)))
                 .andExpect(status().isOk()).andReturn().getResponse();
@@ -81,7 +104,7 @@ public class ProductControllerTest {
                 .id(ID).name(newName).price(newPrice).manufacturer(newManufacturer).build();
 
         when(service.update(NAME, editProduct)).thenReturn(editProduct);
-        MockHttpServletResponse response = mockMvc.perform(put(String.format("/products/%s", NAME))
+        MockHttpServletResponse response = mockMvc.perform(MockMvcRequestBuilders.put(String.format("/products/%s", NAME))
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(editProduct)))
                 .andExpect(status().isOk()).andReturn().getResponse();
@@ -91,7 +114,7 @@ public class ProductControllerTest {
 
     @Test
     public void shouldDeleteProduct() throws Exception {
-        mockMvc.perform(delete(String.format("/products/%s", NAME))
+        mockMvc.perform(MockMvcRequestBuilders.delete(String.format("/products/%s", NAME))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()).andReturn().getResponse();
     }
@@ -102,7 +125,7 @@ public class ProductControllerTest {
         ProductException productException = new ProductException(errorMessage);
         when(service.findByName(NAME)).thenThrow(productException);
 
-        MockHttpServletResponse response = mockMvc.perform(get(String.format("/products/%s", NAME))
+        MockHttpServletResponse response = mockMvc.perform(MockMvcRequestBuilders.get(String.format("/products/%s", NAME))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest()).andReturn().getResponse();
         ProductException exception = objectMapper.readValue(response.getContentAsString(), ProductException.class);

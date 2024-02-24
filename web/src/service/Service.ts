@@ -17,4 +17,13 @@ export class Service<T> {
             return {message: `Couldn't connect to server. Try again...`};
         }
     }
+
+    async save(t: T): Promise<T | Exception> {
+        try {
+            const response: AxiosResponse<T> = await axios.post(`${this.url}/create`, t);
+            return response.data;
+        }catch (error: any) {
+            return {message: error.message};
+        }
+    }
 }

@@ -1,16 +1,21 @@
 import React, {useEffect, useState} from "react";
 import {Service} from "../../service/Service";
-import {Product} from "../../model/Product";
+import {mockProduct, Product} from "../../model/Product";
 import {mockException} from "../../model/Exception";
 import ExceptionComponent from "../exception/ExceptionComponent";
 import {Table, TableD, TableH} from "../../style/Table";
 import {PRODUCT_SERVICE_URL} from "../../service/ServiceUrl";
 import {StyledButton} from "../../style/Button";
-import {useNavigate, useLocation} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
+import {ProductControlProps, WindowType} from "./ProductControlComponent";
 
 const productService: Service<Product> = new Service(PRODUCT_SERVICE_URL);
 
-const ProductComponent: React.FC = () => {
+export interface ProductComponentProps {
+    create: (productProps: ProductControlProps) => void;
+}
+
+const ProductComponent: React.FC<{componentProps: ProductComponentProps}> = ({componentProps}) => {
     const[products, setProducts] = useState<Product[]>([]);
     const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
     const [selectAll, setSelectAll] = useState(false);
@@ -61,6 +66,11 @@ const ProductComponent: React.FC = () => {
         ));
     }
 
+    const handleCreateButton = () => {
+        navigate(`${location.pathname}/create`)
+        componentProps.create({type: WindowType.CREATE, product: mockProduct, service: productService});
+    }
+
     return(
         <div>
             <div className={"pageName"} style={{
@@ -75,7 +85,7 @@ const ProductComponent: React.FC = () => {
                 alignItems: "center",
                 marginBottom: "10px"
             }}>
-                <StyledButton onClick={() => {navigate(`${location.pathname}/create`)}}>Add</StyledButton>
+                <StyledButton onClick={handleCreateButton}>Add</StyledButton>
                 <StyledButton>Remove selected</StyledButton>
             </div>
             <Table>

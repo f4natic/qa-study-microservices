@@ -1,10 +1,12 @@
 package com.example.service;
 
-import java.util.Collection;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface CrudService<T> {
 
-    Collection<T> findAll();
+    Long getTotal();
+    Page<T> findAll(Pageable pageable);
     T findByName(String name);
     T create(T t);
     T update(String name, T t);
