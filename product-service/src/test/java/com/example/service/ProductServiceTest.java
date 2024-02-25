@@ -5,6 +5,8 @@ import com.example.repository.ProductRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -34,8 +36,9 @@ public class ProductServiceTest {
 
     @Test
     public void shouldReturnProductList() {
-        when(repository.findAll()).thenReturn(List.of(product));
-        List<Product> products = (List<Product>) service.findAll();
+        Pageable pageable = Pageable.unpaged();
+        when(repository.findAll(pageable)).thenReturn(new PageImpl<>(List.of(product)));
+        List<Product> products = (List<Product>) service.findAll(pageable).getContent();
         Assertions.assertEquals(products.get(0), product);
     }
 
@@ -177,7 +180,7 @@ public class ProductServiceTest {
     public void shouldDeteleProduct() {
         when(repository.findByName(NAME)).thenReturn(Optional.of(product));
         assertDoesNotThrow(() -> service.delete(NAME));
-        verify(repository, times(1)).deleteByName(NAME);
+        verify(repository, times(1)).delete(product);
     }
 
     @Test
@@ -189,6 +192,6 @@ public class ProductServiceTest {
         String expectedMessage = String.format("Product with name %s not found", NAME);
         String actualMessage = exception.getMessage();
         Assertions.assertEquals(expectedMessage, actualMessage);
-        verify(repository, never()).deleteByName(NAME);
+        verify(repository, never()).delete(product);
     }
 }

@@ -5,6 +5,8 @@ import com.example.repository.ProductRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -16,8 +18,8 @@ public class ProductService implements CrudService<Product> {
     private static final Logger logger = LogManager.getLogger(ProductService.class);
     private ProductRepository productRepository;
 
-    private Pattern namePattern = Pattern.compile("[\\p{L}\\p{M}\\p{N}\\s-#&]+");
-    private Pattern manufacturerPattern = Pattern.compile("[\\p{L}\\p{M}\\s-^*]+");
+    private Pattern namePattern = Pattern.compile("[\\p{L}\\p{N}\\s-#&]+");
+    private Pattern manufacturerPattern = Pattern.compile("[\\p{L}\\s-^*]+");
 
     @Autowired
     public ProductService(ProductRepository productRepository) {
@@ -25,9 +27,14 @@ public class ProductService implements CrudService<Product> {
     }
 
     @Override
-    public Collection<Product> findAll() {
+    public Long getTotal() {
+        return null;
+    }
+
+    @Override
+    public Page<Product> findAll(Pageable pageable) {
         logger.info("GET ALL PRODUCT");
-        return productRepository.findAll();
+        return productRepository.findAll(pageable);
     }
 
     @Override
@@ -60,6 +67,7 @@ public class ProductService implements CrudService<Product> {
 
     @Override
     public Product update(String name, Product product) {
+        logger.info(String.format("Update product: %s", product));
         Optional<Product> productOptional = productRepository.findByName(name);
         if(productOptional.isEmpty()) {
             throw new ProductException(String.format("Product with name %s not found", product.getName()));
@@ -77,16 +85,18 @@ public class ProductService implements CrudService<Product> {
         if(!exist.getName().equals(product.getName())) exist.setName(product.getName());
         if(!exist.getPrice().equals(product.getPrice())) exist.setPrice(product.getPrice());
         if(!exist.getManufacturer().equals(product.getManufacturer())) exist.setManufacturer(product.getManufacturer());
+        productRepository.delete(exist);
         return productRepository.save(product);
     }
 
     @Override
     public void delete(String name) {
+        logger.info(String.format("Delete product: %s", name));
         Optional<Product> productOptional = productRepository.findByName(name);
         if(productOptional.isEmpty()) {
             throw new ProductException(String.format("Product with name %s not found", name));
         }
-        productRepository.deleteByName(name);
+        productRepository.delete(productOptional.get());
     }
 
     private boolean isRequariedName(String name) {

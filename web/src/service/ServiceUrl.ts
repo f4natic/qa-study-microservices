@@ -1,0 +1,1 @@
+export const PRODUCT_SERVICE_URL: string = 'http://localhost:8080/rest/v1/api/product-service/products'

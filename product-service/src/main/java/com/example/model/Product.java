@@ -1,5 +1,6 @@
 package com.example.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 
 import java.util.Objects;
@@ -11,10 +12,15 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
+    @Schema(description = "Наименование продукта. Содержит латинские символы, арабские цифры и дефис.", example = "Apple-01", required = true)
     @Column(name = "name", unique = true)
     private String name;
+
+    @Schema(description = "Цена. Сохраняются только 4-е знака после запятой.", example = "0.596", required = true)
     @Column(name = "price", scale = 4)
     private Double price;
+
+    @Schema(description = "Производитель. Содержит латинские символы и дефис.", example = "MAN-zip", required = true)
     @Column(name = "manufacturer")
     private String manufacturer;
 
