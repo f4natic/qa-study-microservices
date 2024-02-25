@@ -4,6 +4,9 @@ import com.example.model.ExceptionResponse;
 import com.example.model.Product;
 import com.example.service.CrudService;
 import com.example.service.ProductException;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,18 +34,25 @@ public class ProductController {
         return productCrudService.findAll(pageable);
     }
 
+    @ApiResponse(responseCode = "200", description = "OK", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Product.class)))
     @GetMapping("/{name}")
-    public Product findByName(@PathVariable String name) {
+    public Product findByName(
+            @PathVariable String name) {
         return productCrudService.findByName(name);
     }
 
     @PostMapping("/create")
-    public Product create(@RequestBody Product product) {
+    public Product create(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Данные продукта", required = true)
+            @RequestBody Product product) {
         return productCrudService.create(product);
     }
 
     @PutMapping("/{name}")
-    public Product update(@PathVariable String name, @RequestBody Product product) {
+    public Product update(
+            @PathVariable String name,
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Данные продукта", required = true)
+            @RequestBody Product product) {
         return productCrudService.update(name, product);
     }
 
