@@ -19,7 +19,10 @@ export interface ProductControlProps {
 
 const ProductControlComponent: React.FC<{component: ProductControlProps}> = ({component}) => {
     const navigate = useNavigate();
-    const [product, setProduct] = useState({name: '', price: '', manufacturer: ''})
+    const [product, setProduct] = useState({
+        name: component.product.name,
+        price: component.product.price === 0.0 ? "" : component.product.price.toString(),
+        manufacturer: component.product.manufacturer})
     const [exceptionProps, setExceptionProps] = useState({isOpen: false, exception: mockException});
 
     const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -51,6 +54,7 @@ const ProductControlComponent: React.FC<{component: ProductControlProps}> = ({co
         }
     };
 
+
     const handleSave = () => {
         if(product.name.length === 0 || product.price.length === 0 || product.manufacturer.length === 0) {
             setExceptionProps((prev) => ({
@@ -58,18 +62,33 @@ const ProductControlComponent: React.FC<{component: ProductControlProps}> = ({co
                 isOpen: true,
                 exception: {message: "Required fields must be filled in!"},
             }));
-        }
-        component.service.save({name: product.name, price: parseFloat(product.price), manufacturer: product.manufacturer}).then((result) => {
-            if("message" in result) {
-                setExceptionProps((prev) => ({
-                    ...prev,
-                    isOpen: true,
-                    exception: result,
-                }));
+        }else {
+            if(component.type === WindowType.EDIT) {
+                component.service.update(product.name, {name: product.name, price: parseFloat(product.price), manufacturer: product.manufacturer}).then((result) => {
+                    if("message" in result) {
+                        setExceptionProps((prev) => ({
+                            ...prev,
+                            isOpen: true,
+                            exception: result,
+                        }));
+                    }else {
+                        navigate("/products");
+                    }
+                });
             }else {
-                navigate("/products");
+                component.service.save({name: product.name, price: parseFloat(product.price), manufacturer: product.manufacturer}).then((result) => {
+                    if("message" in result) {
+                        setExceptionProps((prev) => ({
+                            ...prev,
+                            isOpen: true,
+                            exception: result,
+                        }));
+                    }else {
+                        navigate("/products");
+                    }
+                });
             }
-        });
+        }
     };
 
     const handleCancel = () => {
@@ -98,7 +117,7 @@ const ProductControlComponent: React.FC<{component: ProductControlProps}> = ({co
             <h1>{component.type} Product</h1>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
                 <label style={{ textAlign: "right" }}>Name:</label>
-                <input type="text" name="name" value={product.name} onChange={handleInputChange} />
+                <input type="text" name="name" value={product.name} onChange={handleInputChange} readOnly={component.type === WindowType.EDIT ? true : false}/>
             </div>
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
                 <label style={{ textAlign: "right" }}>Price:</label>

@@ -11,7 +11,7 @@ import {Service} from "../service/Service";
 const MainComponent: React.FC = () => {
     const [productControlProps, setProductControlProps] = useState<ProductControlProps>({service: new Service(""), type:WindowType.CREATE, product: mockProduct});
 
-    const handleCreateProduct = (productControlProps: ProductControlProps) => {
+    const handleControlProduct = (productControlProps: ProductControlProps) => {
         setProductControlProps(productControlProps);
     }
 
@@ -20,9 +20,9 @@ const MainComponent: React.FC = () => {
             <HeaderComponent />
             <Routes>
                 <Route path={"/"} element={<Navigate to="/products" replace />} />
-                <Route path={"/products"} element={<ProductComponent componentProps={{create: handleCreateProduct}}/>} />
+                <Route path={"/products"} element={<ProductComponent componentProps={{control: handleControlProduct}}/>} />
                 <Route path={"/products/create"} element={<ProductControlComponent component={productControlProps} />} />
-                <Route path={"/products/*"} element={<ImplementationMockComponent />} />
+                <Route path={"/products/*"} element={<ProductControlComponent component={productControlProps} />} />
                 <Route path={"/clients"} element={<ImplementationMockComponent />} />
                 <Route path={"/orders"} element={<ImplementationMockComponent />} />
                 <Route path={"/audit"} element={<ImplementationMockComponent />} />

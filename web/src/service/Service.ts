@@ -51,4 +51,21 @@ export class Service<T> {
             return {message: error.response.data.message};
         }
     }
+
+    async update(name: string, t: T): Promise<T | Exception> {
+        try {
+            const response: AxiosResponse<T> = await axios.put(`${this.url}/${name}`, t);
+            return response.data;
+        }catch (error: any) {
+            return {message: error.response.data.message};
+        }
+    }
+
+    async delete(name: string): Promise<void | Exception> {
+        try {
+            await axios.delete(`${this.url}/${name}`);
+        }catch (error: any) {
+            return {message: error.response.data.message};
+        }
+    }
 }

@@ -8,13 +8,12 @@ import {PRODUCT_SERVICE_URL} from "../../service/ServiceUrl";
 import {StyledButton} from "../../style/StyledButton";
 import {useLocation, useNavigate} from "react-router-dom";
 import {ProductControlProps, WindowType} from "./ProductControlComponent";
-import {StyledSelect} from "../../style/StyledSelect";
 import Pagination from "../pagination/Pagination";
 
 const productService: Service<Product> = new Service(PRODUCT_SERVICE_URL);
 
 export interface ProductComponentProps {
-    create: (productProps: ProductControlProps) => void;
+    control: (productProps: ProductControlProps) => void;
 }
 
 const ProductComponent: React.FC<{componentProps: ProductComponentProps}> = ({componentProps}) => {
@@ -48,7 +47,6 @@ const ProductComponent: React.FC<{componentProps: ProductComponentProps}> = ({co
         })();
     }, [currentPage, itemsPerPage]);
 
-    console.log(totalItems);
     const handleCheckboxChange = (name: string, checked: boolean) => {
         if (checked) {
             setSelectedProducts((prevState) => ([...prevState, name]));
@@ -77,11 +75,6 @@ const ProductComponent: React.FC<{componentProps: ProductComponentProps}> = ({co
         ));
     }
 
-    const handleCreateButton = () => {
-        navigate(`${location.pathname}/create`)
-        componentProps.create({type: WindowType.CREATE, product: mockProduct, service: productService});
-    }
-
     const handlePageChange = (page: number) => {
         setCurrentPage(page - 1);
     };
@@ -96,6 +89,35 @@ const ProductComponent: React.FC<{componentProps: ProductComponentProps}> = ({co
 
     const goToNextPage = () => {
         setCurrentPage((prevPage) => prevPage + 1);
+    };
+
+    const handleCreateButton = () => {
+        navigate(`${location.pathname}/create`)
+        componentProps.control({type: WindowType.CREATE, product: mockProduct, service: productService});
+    }
+
+    const handleEditButton = (product: Product) => {
+        navigate(`${location.pathname}/${product.name}`)
+        componentProps.control({type: WindowType.EDIT, product: product, service: productService});
+    }
+
+    const handleRemove = async (name: string) => {
+        const result = await productService.delete(name);
+        if(result !== void 0) {
+            setExceptionProps((prev) => ({
+                ...prev,
+                isOpen: true,
+                exception: result
+            }));
+        }else {
+            window.location.reload();
+        }
+    };
+
+    const handleRemoveSelected = async () => {
+        selectedProducts.map((name) => handleRemove(name))
+        setSelectedProducts([]);
+        setSelectAll(false);
     };
 
     return(
@@ -113,7 +135,7 @@ const ProductComponent: React.FC<{componentProps: ProductComponentProps}> = ({co
                 marginBottom: "10px"
             }}>
                 <StyledButton onClick={handleCreateButton}>Add</StyledButton>
-                <StyledButton>Remove selected</StyledButton>
+                <StyledButton onClick={handleRemoveSelected}>Remove selected</StyledButton>
             </div>
             <Table>
             <thead>
@@ -147,8 +169,8 @@ const ProductComponent: React.FC<{componentProps: ProductComponentProps}> = ({co
                         <TableD>{product.price}</TableD>
                         <TableD>{product.manufacturer}</TableD>
                         <TableD>
-                                <StyledButton>Edit</StyledButton>
-                                <StyledButton>Remove</StyledButton>
+                                <StyledButton onClick={() => handleEditButton(product)}>Edit</StyledButton>
+                                <StyledButton onClick={() => handleRemove(product.name)}>Remove</StyledButton>
                         </TableD>
                     </tr>
                 ))}
