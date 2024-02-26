@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+  download:
+    build:
+      context: "prepare"
+      dockerfile: Dockerfile
+      args:
+        - REPO_URL=https://github.com/f4natic/qa-study-microservices.git
+    container_name: data
+    volumes:
+      - services_data:/app/qa-study-microservices
+  product-service:
+      image: openjdk:17-alpine
+      container_name: product-service
+      ports:
+        - "8080:8080"
+      volumes:
+        - services_data:/app
+      command: sh -c "cd /app/product-service/target && java -jar product-service-1.0-SNAPSHOT.jar"
+      depends_on:
+        download:
+          condition: service_completed_successfully
+  web-service:
+    image: node:21-alpine
+    container_name: web-service
+    ports:
+      - "3000:3000"
+    volumes:
+      - services_data:/app
+    command: sh -c "cd /app/web && npm install && npm start"
+    depends_on:
+      - product-service
+
+volumes:
+  services_data:
+    driver: local
+networks:
+  default:
+    name: custom_network
