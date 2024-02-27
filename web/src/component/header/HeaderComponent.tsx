@@ -7,7 +7,7 @@ const HeaderComponent: React.FC = () => {
         <Header>
             <TabContainer>
                 <Tab to={"/products"}>Products</Tab>
-                <Tab to={"/clients"}>Clients</Tab>
+                <Tab to={"/customer"}>Customers</Tab>
                 <Tab to={"/orders"}>Orders</Tab>
                 <Tab to={"/audit"}>Audit</Tab>
             </TabContainer>

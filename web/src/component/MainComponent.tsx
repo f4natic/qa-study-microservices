@@ -23,7 +23,7 @@ const MainComponent: React.FC = () => {
                 <Route path={"/products"} element={<ProductComponent componentProps={{control: handleControlProduct}}/>} />
                 <Route path={"/products/create"} element={<ProductControlComponent component={productControlProps} />} />
                 <Route path={"/products/*"} element={<ProductControlComponent component={productControlProps} />} />
-                <Route path={"/clients"} element={<ImplementationMockComponent />} />
+                <Route path={"/customer"} element={<ImplementationMockComponent />} />
                 <Route path={"/orders"} element={<ImplementationMockComponent />} />
                 <Route path={"/audit"} element={<ImplementationMockComponent />} />
             </Routes>
