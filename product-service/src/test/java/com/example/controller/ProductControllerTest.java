@@ -42,6 +42,7 @@ public class ProductControllerTest {
 
     private int pageNum = 0;
     private int pageSize = 5;
+    private long totalProduct = 10;
 
     private Product product;
     @Autowired private MockMvc mockMvc;
@@ -56,6 +57,16 @@ public class ProductControllerTest {
                 .price(PRICE)
                 .manufacturer(MANUFACTURER)
                 .build();
+    }
+
+    @Test
+    public void shouldReturnTotal() throws Exception {
+        when(service.getTotal()).thenReturn(totalProduct);
+        MockHttpServletResponse response = mockMvc.perform(MockMvcRequestBuilders.get("/products/total")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk()).andReturn().getResponse();
+        Long total = objectMapper.readValue(response.getContentAsString(), Long.class);
+        Assertions.assertEquals(total, totalProduct);
     }
 
     @Test
