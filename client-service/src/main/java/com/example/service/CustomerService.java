@@ -41,7 +41,11 @@ public class CustomerService implements CrudService<Customer> {
 
     @Override
     public Customer create(Customer customer) {
-        return null;
+        logger.info(String.format("Create customer: %s", customer));
+        if(customer.getFirstName() == null || customer.getLastName() == null || customer.getEmail() == null || customer.getPhoneNumber() == null) {
+            throw new CustomerException("Required fields must be filled in.");
+        }
+        return customerRepository.save(customer);
     }
 
     @Override

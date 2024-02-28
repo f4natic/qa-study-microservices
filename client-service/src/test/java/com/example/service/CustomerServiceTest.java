@@ -75,4 +75,15 @@ public class CustomerServiceTest {
         String actualMessage = exception.getMessage();
         Assertions.assertEquals(expectedMessage, actualMessage);
     }
+
+    @Test
+    public void shouldReturnCustomerExceptionWhenCreateCustomerWithEmptyField() {
+        Customer wrongCustomer = new Customer.Builder().build();
+        Exception exception = assertThrows(CustomerException.class, ()-> {
+            Customer result = customerService.create(wrongCustomer);
+        });
+        String expectedMessage = "Required fields must be filled in.";
+        String actualMessage = exception.getMessage();
+        Assertions.assertEquals(expectedMessage, actualMessage);
+    }
 }
