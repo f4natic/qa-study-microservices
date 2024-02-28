@@ -9,7 +9,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
@@ -28,7 +27,7 @@ public class ProductService implements CrudService<Product> {
 
     @Override
     public Long getTotal() {
-        return null;
+        return productRepository.count();
     }
 
     @Override

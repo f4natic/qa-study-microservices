@@ -28,6 +28,11 @@ public class ProductController {
         this.productCrudService = productCrudService;
     }
 
+    @GetMapping("/total")
+    public Long getTotal() {
+        return productCrudService.getTotal();
+    }
+
     @GetMapping(params = {"page", "pageSize"})
     public Page<Product> findAll(@RequestParam(defaultValue = "0") int page,
                                  @RequestParam(defaultValue = "5") int pageSize) {

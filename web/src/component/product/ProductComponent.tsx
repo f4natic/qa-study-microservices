@@ -26,7 +26,7 @@ const ProductComponent: React.FC<{componentProps: ProductComponentProps}> = ({co
 
     // Pagination state
     const [currentPage, setCurrentPage] = useState(0);
-    const [itemsPerPage, setItemsPerPage] = useState(10);
+    const [itemsPerPage, setItemsPerPage] = useState(5);
     const [totalItems, setTotalItems] = useState(0);
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const pageNumbers = Array.from({ length: totalPages }, (_, index) => index + 1);
@@ -34,16 +34,25 @@ const ProductComponent: React.FC<{componentProps: ProductComponentProps}> = ({co
     useEffect(() => {
         (async () => {
             const fetchedProducts = await productService.findAll(currentPage, itemsPerPage);
+            const total = await productService.getTotal();
             if('message' in fetchedProducts) {
                setExceptionProps((prev) => ({
                    ...prev,
                    isOpen: true,
                    exception: fetchedProducts
                }));
-            }else {
-                setProducts(fetchedProducts.content);
-                setTotalItems(fetchedProducts.totalElements);
+               return;
             }
+            if(typeof total !== 'number') {
+                setExceptionProps((prev) => ({
+                    ...prev,
+                    isOpen: true,
+                    exception: total
+                }));
+                return;
+            }
+            setTotalItems(total);
+            setProducts(fetchedProducts.content);
         })();
     }, [currentPage, itemsPerPage]);
 

@@ -19,13 +19,13 @@ export class Service<T> {
         this.url = url;
     }
 
-    async getTotal(): Promise<number | string> {
+    async getTotal(): Promise<number | Exception> {
         try {
-            const response: AxiosResponse<number> = await axios.get(this.url);
+            const response: AxiosResponse<number> = await axios.get(`${this.url}/total`);
             console.log(response.data);
             return response.data;
         } catch (error: any) {
-            return `Couldn't connect to server`;
+            return {message: error.response.data.message};
         }
     }
 
@@ -40,6 +40,7 @@ export class Service<T> {
             return response.data;
         } catch (error: any) {
             return {message: `Couldn't connect to server. Try again...`};
+            // return {message: error.response.data.message};
         }
     }
 
