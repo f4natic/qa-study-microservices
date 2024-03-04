@@ -69,7 +69,7 @@ public class CustomerServiceTest {
     public void shouldReturnCustomerExceptionWhenFindById() {
         when(customerRepository.findById(ID)).thenReturn(Optional.empty());
         Exception exception = assertThrows(CustomerException.class, ()-> {
-            Customer result = customerService.findById(ID);
+            customerService.findById(ID);
         });
         String expectedMessage = String.format("Customer with ID: %s, not foud", ID);
         String actualMessage = exception.getMessage();
@@ -80,9 +80,21 @@ public class CustomerServiceTest {
     public void shouldReturnCustomerExceptionWhenCreateCustomerWithEmptyField() {
         Customer wrongCustomer = new Customer.Builder().build();
         Exception exception = assertThrows(CustomerException.class, ()-> {
-            Customer result = customerService.create(wrongCustomer);
+            customerService.create(wrongCustomer);
         });
         String expectedMessage = "Required fields must be filled in.";
+        String actualMessage = exception.getMessage();
+        Assertions.assertEquals(expectedMessage, actualMessage);
+    }
+
+    @Test
+    public void shouldReturnCustomerExceptionWhenCreateCustomerWithWrongEmail() {
+        Customer wrongCustomer = new Customer.Builder().id(ID).email("АБВГД@example.com")
+                .firstName(FIRST_NAME).lastName(LAST_NAME).phoneNumber(PHONE_NUMBER).build();
+        Exception exception = assertThrows(CustomerException.class, ()-> {
+            customerService.create(wrongCustomer);
+        });
+        String expectedMessage = "Email does not match template example@example.com";
         String actualMessage = exception.getMessage();
         Assertions.assertEquals(expectedMessage, actualMessage);
     }

@@ -10,6 +10,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.regex.Pattern;
+
+import static com.example.utils.DataValidator.validateEmail;
 
 @Service
 public class CustomerService implements CrudService<Customer> {
@@ -45,6 +48,11 @@ public class CustomerService implements CrudService<Customer> {
         if(customer.getFirstName() == null || customer.getLastName() == null || customer.getEmail() == null || customer.getPhoneNumber() == null) {
             throw new CustomerException("Required fields must be filled in.");
         }
+
+        if(!validateEmail(customer.getEmail())) {
+            throw new CustomerException("Email does not match template example@example.com");
+        }
+
         return customerRepository.save(customer);
     }
 
