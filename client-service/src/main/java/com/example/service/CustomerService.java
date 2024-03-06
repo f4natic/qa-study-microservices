@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
-import static com.example.utils.DataValidator.validateEmail;
+import static com.example.utils.DataValidator.*;
 
 @Service
 public class CustomerService implements CrudService<Customer> {
@@ -35,9 +35,10 @@ public class CustomerService implements CrudService<Customer> {
 
     @Override
     public Customer findById(Long id) {
+        logger.info(String.format("Find customer with ID: %s", id));
         Optional<Customer> customerOptional = customerRepository.findById(id);
         if(customerOptional.isEmpty()) {
-            throw new CustomerException(String.format("Customer with ID: %s, not foud", id));
+            throw new CustomerException(String.format("Customer with ID: %s, not found", id));
         }
         return customerOptional.get();
     }
@@ -45,24 +46,48 @@ public class CustomerService implements CrudService<Customer> {
     @Override
     public Customer create(Customer customer) {
         logger.info(String.format("Create customer: %s", customer));
-        if(customer.getFirstName() == null || customer.getLastName() == null || customer.getEmail() == null || customer.getPhoneNumber() == null) {
-            throw new CustomerException("Required fields must be filled in.");
-        }
-
-        if(!validateEmail(customer.getEmail())) {
-            throw new CustomerException("Email does not match template example@example.com");
-        }
-
+        validateCustomer(customer);
         return customerRepository.save(customer);
     }
 
     @Override
     public Customer update(Long id, Customer customer) {
-        return null;
+        logger.info(String.format("Update customer with ID: %s", id));
+        Optional<Customer> customerOptional = customerRepository.findById(id);
+        if(customerOptional.isEmpty()) {
+            throw new CustomerException(String.format("Customer with ID: %s, not found", id));
+        }
+        validateCustomer(customer);
+        Customer dbCustomer = customerOptional.get();
+        dbCustomer.setEmail(customer.getEmail());
+        dbCustomer.setFirstName(customer.getFirstName());
+        dbCustomer.setLastName(customer.getLastName());
+        dbCustomer.setPhoneNumber(customer.getPhoneNumber());
+        return customerRepository.save(dbCustomer);
     }
 
     @Override
-    public void delete(String name) {
+    public void delete(Long id) {
+        logger.info(String.format("Delete customer with ID: %s", id));
+        Optional<Customer> customerOptional = customerRepository.findById(id);
+        if(customerOptional.isEmpty()) {
+            throw new CustomerException(String.format("Customer with ID: %s, not found", id));
+        }
+        customerRepository.delete(customerOptional.get());
+    }
 
+    private void validateCustomer(Customer customer) {
+        if(customer.getFirstName() == null || customer.getLastName() == null || customer.getEmail() == null || customer.getPhoneNumber() == null) {
+            throw new CustomerException("Required fields must be filled in");
+        }
+        if(!validateEmail(customer.getEmail())) {
+            throw new CustomerException("Email does not match template example@example.com");
+        }
+        if(!validateName(customer.getFirstName()) || !validateName(customer.getLastName())) {
+            throw new CustomerException("First or last name must be no longer than 20 characters and contain only Latin characters");
+        }
+        if(!validatePhoneNumber(customer.getPhoneNumber())) {
+            throw new CustomerException("The phone number must be in the format +00000000000 and be 12 characters");
+        }
     }
 }

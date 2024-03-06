@@ -5,6 +5,8 @@ import com.example.repository.CustomerRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -71,7 +73,7 @@ public class CustomerServiceTest {
         Exception exception = assertThrows(CustomerException.class, ()-> {
             customerService.findById(ID);
         });
-        String expectedMessage = String.format("Customer with ID: %s, not foud", ID);
+        String expectedMessage = String.format("Customer with ID: %s, not found", ID);
         String actualMessage = exception.getMessage();
         Assertions.assertEquals(expectedMessage, actualMessage);
     }
@@ -82,7 +84,7 @@ public class CustomerServiceTest {
         Exception exception = assertThrows(CustomerException.class, ()-> {
             customerService.create(wrongCustomer);
         });
-        String expectedMessage = "Required fields must be filled in.";
+        String expectedMessage = "Required fields must be filled in";
         String actualMessage = exception.getMessage();
         Assertions.assertEquals(expectedMessage, actualMessage);
     }
@@ -95,6 +97,82 @@ public class CustomerServiceTest {
             customerService.create(wrongCustomer);
         });
         String expectedMessage = "Email does not match template example@example.com";
+        String actualMessage = exception.getMessage();
+        Assertions.assertEquals(expectedMessage, actualMessage);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "qazwsxedcrfvtgbyhnujm, TestLastName",
+            "TestFirstName, qazwsxedcrfvtgbyhnujm"
+    })
+    public void shouldReturnCustomerExceptionWhenCreateCustomerWithLongName(String first, String last) {
+        Customer wrongCustomer = new Customer.Builder().id(ID).email("example@example.com")
+                .firstName(first).lastName(last).phoneNumber(PHONE_NUMBER).build();
+        Exception exception = assertThrows(CustomerException.class, ()-> {
+            customerService.create(wrongCustomer);
+        });
+        String expectedMessage = "First or last name must be no longer than 20 characters and contain only Latin characters";
+        String actualMessage = exception.getMessage();
+        Assertions.assertEquals(expectedMessage, actualMessage);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "q1 w2, TestLastName",
+            "TestFirstName, q1 w2"
+    })
+    public void shouldReturnCustomerExceptionWhenCreateCustomerWithWrongCharactersInName(String first, String last) {
+        Customer wrongCustomer = new Customer.Builder().id(ID).email("example@example.com")
+                .firstName(first).lastName(last).phoneNumber(PHONE_NUMBER).build();
+        Exception exception = assertThrows(CustomerException.class, ()-> {
+            customerService.create(wrongCustomer);
+        });
+        String expectedMessage = "First or last name must be no longer than 20 characters and contain only Latin characters";
+        String actualMessage = exception.getMessage();
+        Assertions.assertEquals(expectedMessage, actualMessage);
+    }
+
+    @Test
+    public void shouldReturnCustomerExceptionWhenCreateCustomerWithWrongPhoneNumber() {
+        Customer wrongCustomer = new Customer.Builder().id(ID).email(EMAIL)
+                .firstName(FIRST_NAME).lastName(LAST_NAME).phoneNumber("1234567890123").build();
+        Exception exception = assertThrows(CustomerException.class, ()-> {
+            customerService.create(wrongCustomer);
+        });
+        String expectedMessage = "The phone number must be in the format +00000000000 and be 12 characters";
+        String actualMessage = exception.getMessage();
+        Assertions.assertEquals(expectedMessage, actualMessage);
+    }
+
+    @Test
+    public void shouldCreateCustomer() {
+        when(customerRepository.save(customer)).thenReturn(customer);
+        Customer result = customerService.create(customer);
+        assertEquals(result, customer);
+    }
+
+    @Test
+    public void shouldUpdateCustomer() {
+        when(customerRepository.findById(ID)).thenReturn(Optional.of(customer));
+        when(customerRepository.save(customer)).thenReturn(customer);
+        Customer result = customerService.update(ID, customer);
+        assertEquals(result, customer);
+    }
+
+    @Test
+    public void shouldDeleteCustomer() {
+        when(customerRepository.findById(ID)).thenReturn(Optional.of(customer));
+        customerService.delete(ID);
+    }
+
+    @Test
+    public void shouldReturnCustomerExceptionWhenDeleteNonExistingCustomer() {
+        when(customerRepository.findById(ID)).thenReturn(Optional.empty());
+        Exception exception = assertThrows(CustomerException.class, ()-> {
+            customerService.delete(ID);
+        });
+        String expectedMessage = String.format("Customer with ID: %s, not found", ID);
         String actualMessage = exception.getMessage();
         Assertions.assertEquals(expectedMessage, actualMessage);
     }

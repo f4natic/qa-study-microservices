@@ -10,5 +10,5 @@ public interface CrudService<T> {
     T findById(Long id);
     T create(T t);
     T update(Long id, T t);
-    void delete(String name);
+    void delete(Long id);
 }
