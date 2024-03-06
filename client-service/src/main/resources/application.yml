@@ -1,0 +1,20 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /rest/v1/api/customer-service
+    encoding:
+      charset: UTF-8
+spring:
+  datasource:
+    url: jdbc:h2:mem:customer-service;MODE=PostgreSQL
+    driver-class-name: org.h2.Driver
+    username: admin
+    password: admin
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+    show-sql: true
+  h2:
+    console:
+      enabled: true

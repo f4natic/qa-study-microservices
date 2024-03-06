@@ -7,8 +7,8 @@ public interface CrudService<T> {
 
     Long getTotal();
     Page<T> findAll(Pageable pageable);
-    T findByName(String name);
+    T findById(Long id);
     T create(T t);
-    T update(String name, T t);
-    void delete(String name);
+    T update(Long id, T t);
+    void delete(Long id);
 }
