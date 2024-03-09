@@ -1,6 +1,7 @@
 package com.example.controller;
 
 import com.example.model.Customer;
+import com.example.service.CrudService;
 import com.example.service.CustomerService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/customers")
 public class CustomerController {
 
-    private CustomerService customerService;
+    private CrudService<Customer> customerService;
 
     @Autowired
-    public CustomerController(CustomerService customerService) {
+    public CustomerController(CrudService<Customer> customerService) {
         this.customerService = customerService;
     }
     @GetMapping("/total")
